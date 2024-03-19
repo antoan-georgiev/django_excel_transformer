@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django_excel_transformer"
+authors = [
+    {name = "Hiten Gadjar", email = "hiten.gadjar@acronis.com"},
+    {name = "Antoan Georgiev", email = "a73@abv.bg"}
+]
+description = "Excel exporter to be used in Panopticum >= 2.14.4xx"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "BSD 3-Clause License"}
+version = "1.0.0"
+dependencies = ["PyYAML==5.3.1", "python-box==7.1.1", "attrs==22.2.0", "pandas==2.0.3", "openpyxl==3.0.9"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
