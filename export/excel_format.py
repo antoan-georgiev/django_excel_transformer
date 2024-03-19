@@ -1,13 +1,12 @@
 import logging
+from enum import Enum
 from typing import Optional
 
-import openpyxl
+import attr
 from box import Box
+from openpyxl.comments import Comment
 from openpyxl.styles import Alignment
 from openpyxl.worksheet.properties import WorksheetProperties
-from openpyxl.comments import Comment
-from enum import Enum
-import attr
 from openpyxl.worksheet.table import TableStyleInfo
 
 from ..common import lower, Registry
@@ -16,6 +15,7 @@ from ..common import lower, Registry
 class FormatType(Enum):
     TABLE = 1
     COLUMN = 2
+
 
 @attr.s
 class Formatter:
@@ -30,6 +30,7 @@ class Formatter:
     @classmethod
     def from_dict(cls, name: str, data: Box):
         raise PermissionError(f'Cannot create object of {cls}')
+
 
 @attr.s
 class ColRef(object):
@@ -94,7 +95,8 @@ class ColFormat(Formatter):
             formatters.dv = col_data_fmtting.get('dv', False)
             comment = col_data_fmtting.get('comment', None)
             if comment:
-                formatters.comment = Comment(text=comment.text, author=comment.author, width=comment.width_len, height=comment.height_len)
+                formatters.comment = Comment(text=comment.text, author=comment.author, width=comment.width_len,
+                                             height=comment.height_len)
 
         tmp_ref = col_data.get('references', None)
         if tmp_ref:

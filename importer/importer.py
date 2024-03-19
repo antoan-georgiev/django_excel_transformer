@@ -1,16 +1,17 @@
+import json
 import logging
-import re, json
+import re
+from datetime import datetime
+from enum import Enum, IntEnum
 from typing import Union
 
+import attr
 import pandas as pd
-from enum import Enum, IntEnum
-from django.conf import settings
-from datetime import datetime
 from box import Box, BoxList
-from django.db.models import TextField, CharField, Model
+from django.conf import settings
+from django.db.models import Model
 
 from ..common import nm, Registry, getdictvalue
-import attr
 
 
 class LOD(IntEnum):
@@ -253,8 +254,8 @@ class ImportableSheet:
             else:
                 self.status = Status.MISMATCH  # Importable sheet status is either NO_CHANGE or MISMATCH
 
-        for record in [r for _,r in self.records.items() if r.status == Status.XL]:
-            (record.refobjs, record.mismatches) = self.compare(record.xl_record, None)  #Helps fill in the refobjs
+        for record in [r for _, r in self.records.items() if r.status == Status.XL]:
+            (record.refobjs, record.mismatches) = self.compare(record.xl_record, None)  # Helps fill in the refobjs
         self._generate_compare_report()
         logging.info(f'import_data() completed for sheet [{self.name}], model [{nm(self.model)}]')
 
@@ -382,7 +383,7 @@ class ImportableSheet:
                 db_records.append(report.db_records[cnt] if lod == LOD.ALL_FULL or (
                         lod == LOD.MISMATCH and report.statuses[cnt] != Status.NO_CHANGE) else '-')
 
-        html_text = f'<p>Total xl_records: {self.total_xl_records}</p><p>Total DB records: {self.total_db_records}</p>'\
+        html_text = f'<p>Total xl_records: {self.total_xl_records}</p><p>Total DB records: {self.total_db_records}</p>' \
                     f'<p>Number of Issues: {report.issue_cnt}</p>'
         if lod != LOD.SUMMARY:
             data = dict({f'key{self.index_keys}': keys, 'status': statuses, 'db_update': None,
@@ -434,7 +435,8 @@ class ImportableSheet:
                     if f in concrete_fields:
                         datadict[f] = v
                     elif r.refobjs:
-                        if not force_update and f in r.refobjs and True in [ref.status != Status.NO_CHANGE for ref in r.refobjs[f]]:
+                        if not force_update and f in r.refobjs and True in [ref.status != Status.NO_CHANGE for ref in
+                                                                            r.refobjs[f]]:
                             v = ','.join([re.sub('^\* ', '', i) for i in r.xl_record[f].rsplit('\n')])
                             logging.error(
                                 f" {nm(self.model)} - Wont update record [{i}] since "
@@ -455,7 +457,7 @@ class ImportableSheet:
                     continue
 
                 if force_update or r.status == Status.XL:  # don't update DB if record MISMATCH & force_update is False
-                                                            # filter should always return 1 object if exists else 0
+                    # filter should always return 1 object if exists else 0
                     # TODO: HG: Below code is not compatible with django reference columns defined using `db_column`
                     # see https://docs.djangoproject.com/en/3.1/ref/models/fields/#database-representation
 
@@ -463,7 +465,7 @@ class ImportableSheet:
                     r.db_record = dbobj
                     if r.refobjs:
                         for f in r.refobjs.keys() & m2m_fields:
-                            getattr(dbobj, f).set([ro.db_record for ro in r.refobjs[f]]) # set will add all the records
+                            getattr(dbobj, f).set([ro.db_record for ro in r.refobjs[f]])  # set will add all the records
 
                     dbobj.save()
                     r.status = Status.NO_CHANGE
@@ -547,5 +549,6 @@ class Importer:
             if not importable_sheet.read_only:
                 importable_sheet.update_db(force_update=self.options.db_force_update)
             else:
-                logging.info(f'Import skipped for sheet [{sheet_nm}] since its marked read_only in config.yml but it has mismatch.')
+                logging.info(
+                    f'Import skipped for sheet [{sheet_nm}] since its marked read_only in config.yml but it has mismatch.')
         return importable_sheet

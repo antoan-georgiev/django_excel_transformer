@@ -2,15 +2,14 @@ import logging
 import os
 
 import openpyxl
+from box import Box
 from openpyxl.styles import Alignment, Protection
 from openpyxl.utils import quote_sheetname
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.protection import SheetProtection
 from openpyxl.worksheet.table import TableStyleInfo
-from openpyxl.cell import Cell
 
 from .excel_format import TableFormat
-from box import Box
 
 
 class XlsWriter(object):
@@ -66,7 +65,7 @@ class XlsWriter(object):
 
     def update_sheet(self, sheet_nm, columns, data, tf):
         """
-        Create or Update excel sheet with db data and cf.
+        Create or Update Excel sheet with db data and cf.
         :param sheet_nm: sheet name
         :param columns: column names
         :param data: Database data that needs to be exported

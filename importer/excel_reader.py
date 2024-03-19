@@ -1,8 +1,9 @@
 import logging
-import openpyxl
 
+import openpyxl
 from box import Box
 from openpyxl.worksheet.worksheet import Worksheet
+
 from .validator import Validator
 
 

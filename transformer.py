@@ -1,11 +1,13 @@
+import logging
+
 from django.core.management.base import BaseCommand
+
+from .django_excel_transformer.common import Registry
 from .django_excel_transformer.export.excel_writter import XlsWriter
 from .django_excel_transformer.export.exporter import Exporter
 from .django_excel_transformer.importer.excel_reader import XlsReader
-from .django_excel_transformer.common import Registry
-from .django_excel_transformer.parser import Parser
 from .django_excel_transformer.importer.importer import Importer
-import logging
+from .django_excel_transformer.parser import Parser
 
 
 class Command(BaseCommand):
@@ -25,7 +27,7 @@ class Command(BaseCommand):
         group = parser_import.add_mutually_exclusive_group()
         group.add_argument('-d',
                            help='dry run. Dont import data in DB. Provides diff between DB and XLS data.',
-                            dest='dry_run', action='store_true')
+                           dest='dry_run', action='store_true')
         group.add_argument('-u',
                            help='update database with non-conflicting entries (e.g. new xls records)',
                            dest='db_update', action='store_true')
@@ -41,21 +43,21 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Registry maintains common instance for parser, exporter, importer etc. Its used for internal processing.
 
-        debuglevel = {0: logging.CRITICAL, 1: logging.ERROR, 2:logging.INFO, 3:logging.DEBUG}
+        debuglevel = {0: logging.CRITICAL, 1: logging.ERROR, 2: logging.INFO, 3: logging.DEBUG}
         logging.basicConfig(
             format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(funcName)s():%(lineno)d] %(message)s',
             datefmt='%Y-%m-%d:%H:%M:%S',
             level=debuglevel[options['verbosity']])
         Registry.parser = Parser(options['config'])
-        Registry.parser.parse() # you can check for errors using parser.errors() and resolve errors in config.yml
+        Registry.parser.parse()  # you can check for errors using parser.errors() and resolve errors in config.yml
 
         Registry.options = options
 
         if options['opt'] == 'import':
             Registry.xlreader = XlsReader(options['xls_file'])
-            Registry.importer = Importer.from_registry(xls_file = options['xls_file'],
-                                                       lod = options['lod'],
-                                                       report_nm = options['report_name_prefix'],
+            Registry.importer = Importer.from_registry(xls_file=options['xls_file'],
+                                                       lod=options['lod'],
+                                                       report_nm=options['report_name_prefix'],
                                                        dry_run=options['dry_run'],
                                                        db_update=options['db_update'],
                                                        db_force_update=options['db_force_update'])

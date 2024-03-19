@@ -1,10 +1,11 @@
 import logging
-import attr
 
+import attr
 from box import Box
-from ..common import Registry, getdictvalue, lower
-from .excel_format import TableFormat
 from django.db.models import Q
+
+from .excel_format import TableFormat
+from ..common import Registry, getdictvalue, lower
 
 
 @attr.s
@@ -36,7 +37,7 @@ class ExportableSheet(object):
 
         missing_fields = [k for k, v in {'name': sheet_nm, 'model': model, 'data': data}.items() if not v]
         if missing_fields:
-            raise ValueError(f'{ ",".join(missing_fields) } missing')
+            raise ValueError(f'{",".join(missing_fields)} missing')
 
         obj = cls(name=sheet_nm, model=model, data=data, filters=filters, columns=list(data.keys()),
                   formatting=TableFormat.from_dict(model._meta.model_name, formatting, data))
@@ -85,11 +86,13 @@ class ExportableSheet(object):
                 if criteria.get("or"):
                     for item in criteria.get("or"):
                         for v in item.get("values"):
-                            queries = Q(**{item.get("name"): v}) if not queries else queries | Q(**{item.get("name"): v})
+                            queries = Q(**{item.get("name"): v}) if not queries else queries | Q(
+                                **{item.get("name"): v})
                 if criteria.get("and"):
                     for item in criteria.get("and"):
                         for v in item.get("values"):
-                            queries = Q(**{item.get("name"): v}) if not queries else queries & Q(**{item.get("name"): v})
+                            queries = Q(**{item.get("name"): v}) if not queries else queries & Q(
+                                **{item.get("name"): v})
                 return queries
 
             if "EXCLUDE" in self.filters:

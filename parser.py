@@ -5,9 +5,10 @@ import os
 import re
 import traceback
 from itertools import chain
+
 from box import Box, BoxList
 
-from .common import get_attr_from_dict, lower, get_model_fields, val, get_model, getdictvalue, get_references
+from .common import get_attr_from_dict, lower, get_model_fields, get_model, getdictvalue, get_references
 
 
 ## Documentation part
@@ -89,7 +90,7 @@ class Parser(object):
         self._file_name = file_name
         _c = Box.from_yaml(stream, default_box=True)
         _c._box_config['default_box'] = True
-        _c.__name__ = 'config.yml'
+        # _c.__name__ = 'config.yml'
         self._status = False
         self._datasets = lower(get_attr_from_dict(_c, 'datasets'))
         self._sheets = {i.sheet_name: i for i in get_attr_from_dict(_c, 'sheets')}
@@ -140,7 +141,8 @@ class Parser(object):
             """
             for idx, entry in enumerate(datadict):
                 if 'attributes' not in entry:
-                    logging.error(f"For attr '{attr}', 'column' key missing inside '{entry}'. Dictionary is '{datadict}'")
+                    logging.error(
+                        f"For attr '{attr}', 'column' key missing inside '{entry}'. Dictionary is '{datadict}'")
                     return _get_col_setting(None, is_comment=is_comment, excel_dv=excel_dv)
                 else:
                     if [c for c in entry.attributes if c == '*' or re.findall('^' + c, attr)]:
@@ -428,8 +430,8 @@ class Parser(object):
 
     def get_sheet(self, sheet_name: str) -> Box:
         """Sheet object if name exists else None"""
-        if not self._status:
-            raise Exception(f'Ensure {self._file_name} is validated')
+        # if not self._status:
+        #     raise Exception(f'Ensure {self._file_name} is validated')
 
         return getdictvalue(self.parsed_sheets, sheet_name, None)
         # TODO: HG: We have an issue to fix when we use filter on sample table and have multiple sheets exported and dependent sheet doesn't know how to link excel validation

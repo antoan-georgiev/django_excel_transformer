@@ -1,8 +1,8 @@
+from collections.abc import KeysView
 from enum import Enum
 
 import django
 from box import Box
-from collections.abc import KeysView
 
 
 class Registry:
@@ -20,8 +20,9 @@ class Registry:
 
 class DBDataMistmatchError(Exception):
     """
-    Exception that expresses whats wrong with DB data
+    Exception that expresses what's wrong with DB data
     """
+
     def __init__(self, msg: str, **kwargs):
         self.table = kwargs["table"]
         self.filters = kwargs["filters"]
@@ -47,8 +48,10 @@ def fields_exists(datadict: {}, fields: []) -> (bool, []):
             status = False
     return status, missing
 
+
 def getdictvalue(dict, key, default):
     return dict.get(key, default) if dict else default
+
 
 def val(boxv1, v2):
     return v2 if not boxv1 or boxv1 == Box() else boxv1
@@ -133,7 +136,6 @@ def get_model(model_name: str):
     return model[0]
 
 
-
 class Issue(Enum):
     EQUAL = 'equal'
     NONE = 'none'
@@ -209,7 +211,6 @@ def get_references(model_name, field, references):
             if ref_model != model._meta.get_field(django_field_nm).related_model:
                 raise ValueError(
                     f'Invalid model [{ref_model_str}] expected [{model._meta.get_field(django_field_nm).related_model}]')
-
 
         if ref_field != 'id':
             for f in ref_field.split('.'):
